@@ -1,6 +1,5 @@
 using UnityEngine;
 
-public class WeaponHandler
+public class WeaponHandler : MonoBehaviour
 {
-    
 }
