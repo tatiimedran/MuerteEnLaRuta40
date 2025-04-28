@@ -10,6 +10,8 @@ public class CharacterMovement : MonoBehaviour
     private Animator animator;
 
     private int weaponType = 0; // 0: cuchillo, 1: pistola
+    public int attackDamage = 10; // Daño por ataque
+    public float attackRange = 1f; // Rango de detección del ataque
 
     void Start()
     {
@@ -63,6 +65,8 @@ public class CharacterMovement : MonoBehaviour
             {
                 animator.SetTrigger("AttackGun"); // Disparar animación de pistola
             }
+
+            ApplyDamageToEnemy(); // Aplicar daño a los enemigos cercanos
         }
     }
 
@@ -79,5 +83,32 @@ public class CharacterMovement : MonoBehaviour
         {
             rb.linearVelocity = Vector2.zero; // Detener movimiento durante el ataque
         }
+    }
+
+    private void ApplyDamageToEnemy()
+    {
+        Debug.Log("Aplicando daño a los enemigos cercanos...");
+
+        // Detectar enemigos cercanos en el rango de ataque
+        Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRange);
+        foreach (Collider2D enemyCollider in hitEnemies)
+        {
+            if (enemyCollider.CompareTag("Enemy"))
+            {
+                EnemyBehavior enemy = enemyCollider.GetComponent<EnemyBehavior>();
+                if (enemy != null)
+                {
+                    enemy.TakeDamage(attackDamage); // Quitar vida al enemigo
+                    Debug.Log($"Enemigo golpeado: {enemy.enemyType.enemyName}, salud restante: {enemy.enemyType.health}");
+                }
+            }
+        }
+    }
+
+    // Dibuja el área de detección en la ventana de escena (opcional)
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

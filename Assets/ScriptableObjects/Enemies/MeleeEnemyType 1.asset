@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: Zorro Patagonico
   speed: 1
-  health: 100
+  health: 50
   canMeleeAttack: 1
   canRangedAttack: 0
   meleeDamage: 20
