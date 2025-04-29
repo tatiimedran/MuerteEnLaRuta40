@@ -18,6 +18,7 @@ public class EnemyBehavior : MonoBehaviour
 
     private bool isBlinking = false; // Controla si el enemigo ya está parpadeando
     private bool isPlayerInRange = false; // Controla si el jugador está en rango o colisiona físicamente
+    private float lastAttackTime = 0f; // Tiempo del último ataque
 
     void Start()
     {
@@ -94,20 +95,47 @@ public class EnemyBehavior : MonoBehaviour
 
     void HandleAttack(float distanceToPlayer)
     {
-        // Asegurarse de que el jugador esté dentro del rango de ataque
-        if (distanceToPlayer <= enemyType.attackRange)
+        // Asegurarse de que el jugador esté dentro del rango de ataque y en contacto
+        if (distanceToPlayer <= enemyType.attackRange && isPlayerInRange)
         {
-            if (enemyType.canMeleeAttack)
+            // Obtener el componente de salud del jugador
+            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
+
+            // Verificar que el jugador tiene vida antes de proceder
+            if (playerHealth != null && playerHealth.CurrentHealth > 0)
             {
-                enemyAnimator.SetTrigger("MeleeAttack");
-            }
-            else if (enemyType.canRangedAttack && distanceToPlayer <= enemyType.detectionRange)
-            {
-                enemyAnimator.SetTrigger("RangedAttack");
-                if (enemyType.projectilePrefab != null)
+                // Verifica si ha pasado el tiempo de cooldown desde el último ataque
+                if (Time.time >= lastAttackTime + enemyType.attackCooldown)
                 {
-                    Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
+                    if (enemyType.canMeleeAttack)
+                    {
+                        enemyAnimator.SetTrigger("MeleeAttack");
+
+                        // Aplicar daño cuerpo a cuerpo
+                        playerHealth.TakeDamage((int)enemyType.meleeDamage); // Convertimos float a int
+                        Debug.Log($"El enemigo atacó con un golpe cuerpo a cuerpo y le hizo {enemyType.meleeDamage} de daño al jugador.");
+                    }
+                    else if (enemyType.canRangedAttack && distanceToPlayer <= enemyType.detectionRange)
+                    {
+                        enemyAnimator.SetTrigger("RangedAttack");
+
+                        // Aplicar daño a distancia y disparar proyectil
+                        if (enemyType.projectilePrefab != null)
+                        {
+                            Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
+                        }
+
+                        playerHealth.TakeDamage((int)enemyType.rangedDamage); // Convertimos float a int
+                        Debug.Log($"El enemigo atacó con un ataque a distancia e hizo {enemyType.rangedDamage} de daño.");
+                    }
+
+                    // Actualiza el tiempo del último ataque
+                    lastAttackTime = Time.time;
                 }
+            }
+            else
+            {
+                Debug.Log("El jugador no tiene más vida. El enemigo detiene los ataques.");
             }
         }
     }

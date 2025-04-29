@@ -17,8 +17,9 @@ MonoBehaviour:
   health: 50
   canMeleeAttack: 1
   canRangedAttack: 0
-  meleeDamage: 20
+  meleeDamage: 10
   rangedDamage: 0
   projectilePrefab: {fileID: 0}
   attackRange: 0.1
   detectionRange: 0.6
+  attackCooldown: 0.5

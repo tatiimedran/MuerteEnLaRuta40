@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2866387599246618798}
   - component: {fileID: 6311538972160312248}
   - component: {fileID: 5287208941974536576}
-  - component: {fileID: 4171843011911185792}
+  - component: {fileID: 5291306303754432589}
   m_Layer: 6
   m_Name: Zorro
   m_TagString: Enemy
@@ -153,7 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyType: {fileID: 11400000, guid: 53103d69a46d7464586bc0138f4720da, type: 2}
---- !u!60 &4171843011911185792
+--- !u!60 &5291306303754432589
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -187,10 +187,10 @@ PolygonCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: -0.21}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
+    pivot: {x: 0.53846145, y: -0.6666667}
     oldSize: {x: 0.13, y: 0.18}
     newSize: {x: 0.19, y: 0.18}
     adaptiveTilingThreshold: 0.5
