@@ -61,8 +61,9 @@ public class PlayerHealth : MonoBehaviour
     void HandleDeath()
     {
         Debug.Log("Player has died!");
-        GetComponent<Animator>().SetTrigger("Die");
-        this.enabled = false; // Desactiva este script para evitar más lógica
+        GetComponent<Animator>().SetTrigger("Die"); // Activar animación de muerte
+        this.enabled = false; // Desactiva este script
+        GetComponent<CharacterMovement>().enabled = false; // Desactiva el movimiento
     }
 
     public void Heal(int amount)
