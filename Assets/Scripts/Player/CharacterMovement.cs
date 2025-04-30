@@ -24,42 +24,38 @@ public class CharacterMovement : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            // Disparar o atacar según el arma equipada
+            animator.SetTrigger(equippedWeapon.attackAnimation);
+            ApplyDamageToEnemy();
+        }
+
         // Capturar la dirección del movimiento
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
         float moveVertical = Input.GetAxisRaw("Vertical");
         direction = new Vector2(moveHorizontal, moveVertical).normalized;
 
-        // Retener la última dirección válida para los ataques si el personaje está quieto
+        // Actualizar animaciones y direcciones
         if (direction != Vector2.zero)
         {
             animator.SetFloat("MoveHorizontal", direction.x);
             animator.SetFloat("MoveVertical", direction.y);
             animator.SetBool("IsMoving", true);
 
-            // Guardar la última dirección válida
             animator.SetFloat("LastMoveHorizontal", direction.x);
             animator.SetFloat("LastMoveVertical", direction.y);
         }
         else
         {
             animator.SetBool("IsMoving", false);
-
-            // Usar la última dirección válida para los ataques
             animator.SetFloat("MoveHorizontal", animator.GetFloat("LastMoveHorizontal"));
             animator.SetFloat("MoveVertical", animator.GetFloat("LastMoveVertical"));
         }
 
-        // Cambiar arma equipada según el número presionado
-        if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeapon(0); // Cuchillo
-        if (Input.GetKeyDown(KeyCode.Alpha2)) EquipWeapon(1); // Pistola
-
-        // Detectar ataque
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            // El Blend Tree usará la dirección almacenada (ya sea actual o última)
-            animator.SetTrigger(equippedWeapon.attackAnimation);
-            ApplyDamageToEnemy();
-        }
+        // Cambiar arma equipada
+        if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeapon(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) EquipWeapon(1);
     }
 
     void FixedUpdate()
@@ -79,14 +75,16 @@ public class CharacterMovement : MonoBehaviour
 
     private void ApplyDamageToEnemy()
     {
-        // Verificar si el arma equipada es a distancia o cuerpo a cuerpo
-        if (equippedWeapon.projectilePrefab != null)
+        Debug.Log($"El arma equipada ({equippedWeapon.weaponName}) es a distancia: {equippedWeapon.isRanged}");
+
+        if (equippedWeapon.isRanged)
         {
-            ShootProjectile(); // Disparar proyectil
+            // Para armas a distancia
+            ShootProjectile();
         }
         else
         {
-            // Aplicar daño cuerpo a cuerpo en un rango cercano
+            // Para armas cuerpo a cuerpo
             Debug.Log($"Atacando con: {equippedWeapon.weaponName}");
             Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, equippedWeapon.attackRange);
             foreach (Collider2D enemyCollider in hitEnemies)
@@ -107,18 +105,20 @@ public class CharacterMovement : MonoBehaviour
     private void ShootProjectile()
     {
         if (equippedWeapon.projectilePrefab != null)
+
         {
             // Instanciar el proyectil
             GameObject projectile = Instantiate(
-                equippedWeapon.projectilePrefab, // Prefab del proyectil
-                transform.position,             // Posición inicial del proyectil
-                Quaternion.identity             // Sin rotación inicial
+                equippedWeapon.projectilePrefab,   // Prefab del proyectil
+                transform.position,               // Posición inicial (jugador)
+                Quaternion.identity               // Sin rotación inicial
             );
 
             // Configurar la dirección y velocidad del proyectil
             Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
+                // Obtener dirección desde el Animator
                 Vector2 shootDirection = new Vector2(
                     animator.GetFloat("MoveHorizontal"),
                     animator.GetFloat("MoveVertical")
@@ -127,13 +127,20 @@ public class CharacterMovement : MonoBehaviour
                 rb.linearVelocity = shootDirection * equippedWeapon.projectileSpeed; // Velocidad del proyectil
             }
 
+            // Transferir el daño del arma al proyectil
+            Projectile projectileScript = projectile.GetComponent<Projectile>();
+            if (projectileScript != null)
+            {
+                projectileScript.SetDamage(equippedWeapon.attackDamage);
+            }
+
             // Opcional: reproducir sonido de ataque si está configurado
             if (equippedWeapon.attackSound != null)
             {
                 AudioSource.PlayClipAtPoint(equippedWeapon.attackSound, transform.position);
             }
 
-            Debug.Log($"Proyectil disparado con: {equippedWeapon.weaponName}");
+            Debug.Log($"Proyectil disparado con: {equippedWeapon.weaponName}, daño = {equippedWeapon.attackDamage}");
         }
         else
         {
@@ -154,5 +161,3 @@ public class CharacterMovement : MonoBehaviour
         }
     }
 }
-
-

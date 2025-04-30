@@ -156,10 +156,10 @@ public class EnemyBehavior : MonoBehaviour
         }
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, bool ignorePlayerRange = false)
     {
-        // Solo aplica daño si el jugador está en rango o colisiona físicamente
-        if (isPlayerInRange)
+        // Permitir daño incluso si el jugador no está cerca, dependiendo del tipo de ataque
+        if (ignorePlayerRange || isPlayerInRange)
         {
             currentHealth -= damage; // Reducir la vida de esta instancia
             Debug.Log($"Enemigo: {enemyType.enemyName} recibió {damage} de daño. Salud restante: {currentHealth}");
