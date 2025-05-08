@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: MeleeEnemyType 1
   m_EditorClassIdentifier: 
   enemyName: Zorro Patagonico
-  speed: 1
+  speed: 2
   health: 50
   canMeleeAttack: 1
   canRangedAttack: 0
@@ -21,5 +21,5 @@ MonoBehaviour:
   rangedDamage: 0
   projectilePrefab: {fileID: 0}
   attackRange: 0.1
-  detectionRange: 0.6
+  detectionRange: 0.9
   attackCooldown: 0.5

@@ -79,23 +79,30 @@ public class CharacterMovement : MonoBehaviour
 
         if (equippedWeapon.isRanged)
         {
-            // Para armas a distancia
             ShootProjectile();
         }
         else
         {
-            // Para armas cuerpo a cuerpo
             Debug.Log($"Atacando con: {equippedWeapon.weaponName}");
-            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, equippedWeapon.attackRange);
-            foreach (Collider2D enemyCollider in hitEnemies)
+
+            //para verificar el alcance
+            RaycastHit2D hitEnemy = Physics2D.Raycast(transform.position, direction, equippedWeapon.attackRange);
+
+            if (hitEnemy.collider != null && hitEnemy.collider.CompareTag("Enemy"))
             {
-                if (enemyCollider.CompareTag("Enemy"))
+                EnemyBehavior enemy = hitEnemy.collider.GetComponent<EnemyBehavior>();
+                if (enemy != null)
                 {
-                    EnemyBehavior enemy = enemyCollider.GetComponent<EnemyBehavior>();
-                    if (enemy != null)
+                    float distanceToEnemy = Vector2.Distance(transform.position, enemy.transform.position);
+
+                    if (distanceToEnemy <= equippedWeapon.attackRange) //Solo aplicar daño si está dentro del rango real
                     {
-                        enemy.TakeDamage(equippedWeapon.attackDamage);
-                        Debug.Log($"Enemigo golpeado: {enemy.enemyType.enemyName}, Salud restante: {enemy.enemyType.health}");
+                        enemy.TakeDamage(equippedWeapon.attackDamage, true);
+                        Debug.Log($"Enemigo golpeado correctamente: {enemy.enemyType.enemyName}, Salud restante: {enemy.enemyType.health}");
+                    }
+                    else
+                    {
+                        Debug.Log("Ataque cuerpo a cuerpo ignorado: el enemigo está demasiado lejos.");
                     }
                 }
             }
