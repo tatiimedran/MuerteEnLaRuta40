@@ -18,8 +18,7 @@ public class Projectile : MonoBehaviour
             EnemyBehavior enemy = collision.GetComponent<EnemyBehavior>();
             if (enemy != null)
             {
-                enemy.TakeDamage(damage, true); // Pasar true para ignorar la proximidad del jugador
-                Debug.Log($"Proyectil impactó: daño aplicado = {damage}");
+                enemy.TakeDamage(damage); 
             }
 
             // Destruir el proyectil tras impactar

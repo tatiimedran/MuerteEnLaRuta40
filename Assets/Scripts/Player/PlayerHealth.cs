@@ -29,15 +29,6 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("Espacio presionado");
-            TakeDamage(10);
-        }
-    }
-
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;

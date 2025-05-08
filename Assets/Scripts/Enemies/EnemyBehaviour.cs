@@ -1,209 +1,177 @@
 using UnityEngine;
-using System.Collections.Generic;
+using UnityEngine.AI;
 using System.Collections;
 
 [RequireComponent(typeof(PolygonCollider2D))]
 public class EnemyBehavior : MonoBehaviour
 {
-    public EnemyType enemyType; // Referencia al Scriptable Object
-    private int currentHealth; // Vida específica de esta instancia del enemigo
+    public EnemyType enemyType;
+    private int currentHealth;
 
-    private Rigidbody2D rb;
-    private Vector2 direction;
+    private NavMeshAgent agent;
     private Animator enemyAnimator;
-    private PolygonCollider2D enemyCollider; // Cambiado a PolygonCollider2D
+    private PolygonCollider2D enemyCollider;
     private SpriteRenderer spriteRenderer;
+    private EnemyVision vision;
 
     private Transform player;
-
-    private bool isBlinking = false; // Controla si el enemigo ya está parpadeando
-    private bool isPlayerInRange = false; // Controla si el jugador está en rango o colisiona físicamente
-    private float lastAttackTime = 0f; // Tiempo del último ataque
+    private bool isBlinking = false;
+    private bool isPlayerInRange = false;
+    private float lastAttackTime = 0f;
 
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();
+        agent = GetComponent<NavMeshAgent>();
+        vision = GetComponent<EnemyVision>();
         enemyAnimator = GetComponent<Animator>();
-        enemyCollider = GetComponent<PolygonCollider2D>(); // Usamos PolygonCollider2D
+        enemyCollider = GetComponent<PolygonCollider2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
 
-        // Configura el Rigidbody2D para evitar rotaciones
-        rb.freezeRotation = true;
-        rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-
-        // Reducir la masa del enemigo para evitar empujes significativos
-        rb.mass = 0.5f;
-
-        // Inicializar la vida actual con el valor del Scriptable Object
         currentHealth = enemyType.health;
-
-        // Encuentra al jugador automáticamente (usando su tag "Player")
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
 
         if (player == null)
         {
-            Debug.LogError("No se encontró un objeto con la etiqueta 'Player'. Asegúrate de asignar el tag al jugador.");
+            Debug.LogError("No se encontró un objeto con la etiqueta 'Player'.");
         }
+
+        agent.speed = enemyType.speed;
+        agent.updateRotation = false;
+        agent.updateUpAxis = false;
     }
 
-    void FixedUpdate()
+    void Update()
     {
-        // Solo ejecuta la lógica si el enemigo está vivo
-        if (currentHealth > 0 && player != null)
+        if (currentHealth > 0 && player != null && player.GetComponent<PlayerHealth>().CurrentHealth > 0)
         {
-            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+            isPlayerInRange = vision.CanSeePlayer();
 
-            // Actualiza el estado de "rango" basado en la distancia
-            isPlayerInRange = distanceToPlayer <= enemyType.attackRange;
-
-            if (distanceToPlayer <= enemyType.detectionRange && distanceToPlayer > enemyType.attackRange)
+            if (isPlayerInRange)
             {
-                MoveTowardsPlayer();
-            }
-            else if (distanceToPlayer <= enemyType.attackRange)
-            {
-                StopMoving();
-                HandleAttack(distanceToPlayer); // Verificar ataque en rango específico
+                agent.SetDestination(player.position);
+                enemyAnimator.SetBool("EnemyIsMoving", true);
             }
             else
             {
-                StopMoving();
+                agent.ResetPath();
+                enemyAnimator.SetBool("EnemyIsMoving", false);
             }
-        }
 
-        UpdateColliderToCurrentFrame(); // Actualizamos el colisionador basado en el frame del sprite
-    }
-
-    void MoveTowardsPlayer()
-    {
-        direction = (player.position - transform.position).normalized;
-
-        if (direction != Vector2.zero)
-        {
-            rb.linearVelocity = direction * enemyType.speed;
-            enemyAnimator.SetFloat("MoveHorizontal", direction.x);
-            enemyAnimator.SetFloat("MoveVertical", direction.y);
-            enemyAnimator.SetBool("EnemyIsMoving", true);
-        }
-    }
-
-    void StopMoving()
-    {
-        rb.linearVelocity = Vector2.zero;
-        enemyAnimator.SetBool("EnemyIsMoving", false);
-    }
-
-    void HandleAttack(float distanceToPlayer)
-    {
-        // Asegurarse de que el jugador esté dentro del rango de ataque y en contacto
-        if (distanceToPlayer <= enemyType.attackRange && isPlayerInRange)
-        {
-            // Obtener el componente de salud del jugador
-            PlayerHealth playerHealth = player.GetComponent<PlayerHealth>();
-
-            // Verificar que el jugador tiene vida antes de proceder
-            if (playerHealth != null && playerHealth.CurrentHealth > 0)
+            Vector2 moveDirection = new Vector2(agent.velocity.x, agent.velocity.y);
+            if (moveDirection != Vector2.zero)
             {
-                // Verifica si ha pasado el tiempo de cooldown desde el último ataque
-                if (Time.time >= lastAttackTime + enemyType.attackCooldown)
-                {
-                    if (enemyType.canMeleeAttack)
-                    {
-                        enemyAnimator.SetTrigger("MeleeAttack");
-
-                        // Aplicar daño cuerpo a cuerpo
-                        playerHealth.TakeDamage((int)enemyType.meleeDamage); // Convertimos float a int
-                        Debug.Log($"El enemigo atacó con un golpe cuerpo a cuerpo y le hizo {enemyType.meleeDamage} de daño al jugador.");
-                    }
-                    else if (enemyType.canRangedAttack && distanceToPlayer <= enemyType.detectionRange)
-                    {
-                        enemyAnimator.SetTrigger("RangedAttack");
-
-                        // Aplicar daño a distancia y disparar proyectil
-                        if (enemyType.projectilePrefab != null)
-                        {
-                            Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
-                        }
-
-                        playerHealth.TakeDamage((int)enemyType.rangedDamage); // Convertimos float a int
-                        Debug.Log($"El enemigo atacó con un ataque a distancia e hizo {enemyType.rangedDamage} de daño.");
-                    }
-
-                    // Actualiza el tiempo del último ataque
-                    lastAttackTime = Time.time;
-                }
-            }
-            else
-            {
-                Debug.Log("El jugador no tiene más vida. El enemigo detiene los ataques.");
-            }
-        }
-    }
-
-    private void UpdateColliderToCurrentFrame()
-    {
-        if (spriteRenderer.sprite != null)
-        {
-            enemyCollider.pathCount = spriteRenderer.sprite.GetPhysicsShapeCount();
-
-            for (int i = 0; i < enemyCollider.pathCount; i++)
-            {
-                List<Vector2> pointsList = new List<Vector2>();
-                spriteRenderer.sprite.GetPhysicsShape(i, pointsList);
-
-                enemyCollider.SetPath(i, pointsList);
-            }
-        }
-    }
-
-    public void TakeDamage(int damage, bool ignorePlayerRange = false)
-    {
-        // Permitir daño incluso si el jugador no está cerca, dependiendo del tipo de ataque
-        if (ignorePlayerRange || isPlayerInRange)
-        {
-            currentHealth -= damage; // Reducir la vida de esta instancia
-            Debug.Log($"Enemigo: {enemyType.enemyName} recibió {damage} de daño. Salud restante: {currentHealth}");
-
-            // Iniciar el efecto de parpadeo si no está ya activo
-            if (!isBlinking)
-            {
-                StartCoroutine(BlinkEffect(0.2f, 3)); // Breve duración con cambios visibles
+                enemyAnimator.SetFloat("MoveHorizontal", moveDirection.x);
+                enemyAnimator.SetFloat("MoveVertical", moveDirection.y);
             }
 
-            if (currentHealth <= 0)
-            {
-                Die();
-            }
+            HandleAttack();
         }
         else
         {
-            Debug.Log("El jugador no está en contacto físico con el enemigo. No se aplica daño.");
+            agent.ResetPath();
+            enemyAnimator.SetBool("EnemyIsMoving", false);
+        }
+    }
+
+    void HandleAttack()
+    {
+        if (player == null || player.GetComponent<PlayerHealth>().CurrentHealth <= 0) return;
+
+        float distanceToPlayer = Vector2.Distance(agent.nextPosition, player.position);
+
+        //Bloquear ataques cuerpo a cuerpo si el jugador está fuera del rango exacto
+        if (enemyType.canMeleeAttack && distanceToPlayer > enemyType.attackRange)
+        {
+            Debug.Log("Bloqueando ataque cuerpo a cuerpo: el jugador está demasiado lejos.");
+            return;
+        }
+
+        if (Time.time >= lastAttackTime + enemyType.attackCooldown && distanceToPlayer <= enemyType.attackRange)
+        {
+            lastAttackTime = Time.time;
+            Vector2 attackDirection = (player.position - agent.nextPosition).normalized;
+
+            enemyAnimator.SetFloat("MoveHorizontal", attackDirection.x);
+            enemyAnimator.SetFloat("MoveVertical", attackDirection.y);
+
+            if (enemyType.canMeleeAttack)
+            {
+                enemyAnimator.SetTrigger("MeleeAttack");
+                player.GetComponent<PlayerHealth>().TakeDamage((int)enemyType.meleeDamage);
+                Debug.Log($"Ataque cuerpo a cuerpo ejecutado correctamente. Daño: {enemyType.meleeDamage}");
+            }
+            else if (enemyType.canRangedAttack && distanceToPlayer <= enemyType.detectionRange)
+            {
+                enemyAnimator.SetTrigger("RangedAttack");
+
+                if (enemyType.projectilePrefab != null)
+                {
+                    Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
+                }
+
+                player.GetComponent<PlayerHealth>().TakeDamage((int)enemyType.rangedDamage);
+                Debug.Log($"Ataque a distancia ejecutado correctamente. Daño: {enemyType.rangedDamage}");
+            }
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject.CompareTag("Projectile"))
+        {
+            if (player == null || player.GetComponent<PlayerHealth>().CurrentHealth <= 0)
+            {
+                Debug.Log("Ignorando daño: el jugador ha muerto.");
+                return;
+            }
+
+            int damage = (int)enemyType.rangedDamage;
+            TakeDamage(damage);
+            Destroy(other.gameObject);
+            Debug.Log($"El enemigo recibió daño por impacto de proyectil. Daño aplicado: {damage}");
+        }
+    }
+
+    public void TakeDamage(int damage, bool isMeleeAttack = false)
+    {
+        if (player == null || player.GetComponent<PlayerHealth>().CurrentHealth <= 0)
+        {
+            Debug.Log("Ignorando daño: el jugador ha muerto.");
+            return;
+        }
+
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+
+        //Solo aplicar daño si el ataque es cuerpo a cuerpo y el jugador está cerca
+        if (isMeleeAttack && distanceToPlayer > enemyType.attackRange)
+        {
+            Debug.Log("Ignorando daño por ataque cuerpo a cuerpo: el jugador está demasiado lejos.");
+            return;
+        }
+
+        Debug.Log($"Enemigo impactado. Vida antes del daño: {currentHealth}, daño recibido: {damage}");
+        currentHealth -= damage;
+        Debug.Log($"Nueva vida del enemigo después del daño: {currentHealth}");
+
+        if (!isBlinking)
+        {
+            StartCoroutine(BlinkEffect(0.2f, 3));
+        }
+
+        if (currentHealth <= 0)
+        {
+            Debug.Log("El enemigo ha muerto.");
+            Die();
         }
     }
 
     private void Die()
     {
-        Debug.Log($"{gameObject.name} está muriendo.");
-
-        // Activar la animación de muerte
+        if (!this.enabled) return; //Evita múltiples ejecuciones
         enemyAnimator.SetTrigger("Death");
-
-        // Desactivar colisionadores para que el enemigo ya no interfiera
         enemyCollider.enabled = false;
-
-        // Detener completamente el movimiento del Rigidbody2D
-        rb.linearVelocity = Vector2.zero;
-        rb.angularVelocity = 0f;
-
-        // Cambiar a Kinematic (si no lo estaba antes)
-        rb.bodyType = RigidbodyType2D.Kinematic;
-
-        // Desactivar este script para detener toda su lógica
+        agent.isStopped = true;
         this.enabled = false;
-
-        Debug.Log($"{gameObject.name} ahora reproduce la animación de muerte.");
-
-        // Llamar a una corutina para destruir el enemigo tras unos segundos
         StartCoroutine(DestroyAfterAnimation());
     }
 
@@ -227,24 +195,7 @@ public class EnemyBehavior : MonoBehaviour
             yield return new WaitForSeconds(blinkDuration / (blinkTimes * 2));
         }
 
+        spriteRenderer.color = originalColor;
         isBlinking = false;
-    }
-
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            isPlayerInRange = true; // El jugador está en contacto con el enemigo
-            Debug.Log("Jugador en contacto con el enemigo.");
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            isPlayerInRange = false; // El jugador ya no está en contacto
-            Debug.Log("Jugador salió del contacto con el enemigo.");
-        }
     }
 }
