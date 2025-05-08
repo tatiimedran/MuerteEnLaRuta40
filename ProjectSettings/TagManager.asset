@@ -6,7 +6,10 @@ TagManager:
   tags:
   - Enemy
   - Obstacle
+<<<<<<< HEAD
   - Projectile
+=======
+>>>>>>> 095bb14b2feb9114b2dc311c066df14ce5f797db
   layers:
   - Default
   - TransparentFX

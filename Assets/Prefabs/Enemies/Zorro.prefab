@@ -32,7 +32,11 @@ Transform:
   m_GameObject: {fileID: 6978917251674119689}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+<<<<<<< HEAD
   m_LocalPosition: {x: -0.9708093, y: 0.68354845, z: 0}
+=======
+  m_LocalPosition: {x: 0.918, y: 0.711, z: 0}
+>>>>>>> 095bb14b2feb9114b2dc311c066df14ce5f797db
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -189,11 +193,15 @@ PolygonCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
+  m_Offset: {x: 0, y: -0.21}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
+<<<<<<< HEAD
     oldSize: {x: 0.25, y: 0.34615386}
+=======
+    oldSize: {x: 0.13, y: 0.18}
+>>>>>>> 095bb14b2feb9114b2dc311c066df14ce5f797db
     newSize: {x: 0.19, y: 0.18}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
