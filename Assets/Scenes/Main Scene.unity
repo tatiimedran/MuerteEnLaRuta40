@@ -1114,7 +1114,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6978917251674119689, guid: 77b1721dc38218a46be36cc057a76d16, type: 3}
       propertyPath: m_Name
-      value: Zorro
+      value: Fox
       objectReference: {fileID: 0}
     - target: {fileID: 9039640765333738735, guid: 77b1721dc38218a46be36cc057a76d16, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1523,9 +1523,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.34115922
+    x: 0
     y: 0
-    width: 0.3169479
+    width: 1
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
