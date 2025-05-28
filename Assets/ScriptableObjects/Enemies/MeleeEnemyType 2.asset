@@ -20,5 +20,6 @@ MonoBehaviour:
   meleeDamage: 10
   rangedDamage: 0
   projectilePrefab: {fileID: 0}
-  attackRange: 0
-  detectionRange: 0
+  attackRange: 0.1
+  detectionRange: 0.7
+  attackCooldown: 0.9

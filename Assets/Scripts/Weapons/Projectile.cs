@@ -30,11 +30,7 @@ public class Projectile : MonoBehaviour
             Debug.Log("Proyectil impactó con un obstáculo.");
             Destroy(gameObject);
         }
-        else
-        {
-            // Opcional: detectar otros tipos de colisión si es necesario
-            Debug.Log($"Proyectil impactó con: {collision.gameObject.name}");
-        }
+        
     }
 }
 

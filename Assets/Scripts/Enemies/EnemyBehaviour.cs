@@ -57,14 +57,7 @@ public class EnemyBehavior : MonoBehaviour
                 enemyAnimator.SetBool("EnemyIsMoving", false);
             }
 
-            Vector2 moveDirection = new Vector2(agent.velocity.x, agent.velocity.y);
-            if (moveDirection != Vector2.zero)
-            {
-                enemyAnimator.SetFloat("MoveHorizontal", moveDirection.x);
-                enemyAnimator.SetFloat("MoveVertical", moveDirection.y);
-            }
-
-            HandleAttack();
+            HandleAttack(); // El enemigo puede atacar mientras se mueve
         }
         else
         {
@@ -77,58 +70,50 @@ public class EnemyBehavior : MonoBehaviour
     {
         if (player == null || player.GetComponent<PlayerHealth>().CurrentHealth <= 0) return;
 
-        float distanceToPlayer = Vector2.Distance(agent.nextPosition, player.position);
+        float distanceToPlayer = Vector2.Distance(transform.position, player.position);
+        Debug.Log($"Distancia al jugador: {distanceToPlayer}, Rango de detección: {enemyType.detectionRange}");
 
-        //Bloquear ataques cuerpo a cuerpo si el jugador está fuera del rango exacto
-        if (enemyType.canMeleeAttack && distanceToPlayer > enemyType.attackRange)
-        {
-            Debug.Log("Bloqueando ataque cuerpo a cuerpo: el jugador está demasiado lejos.");
-            return;
-        }
-
-        if (Time.time >= lastAttackTime + enemyType.attackCooldown && distanceToPlayer <= enemyType.attackRange)
+        if (Time.time >= lastAttackTime + enemyType.attackCooldown)
         {
             lastAttackTime = Time.time;
-            Vector2 attackDirection = (player.position - agent.nextPosition).normalized;
+            Vector2 attackDirection = (player.position - transform.position).normalized;
 
             enemyAnimator.SetFloat("MoveHorizontal", attackDirection.x);
             enemyAnimator.SetFloat("MoveVertical", attackDirection.y);
 
-            if (enemyType.canMeleeAttack)
+            if (enemyType.canMeleeAttack && distanceToPlayer <= enemyType.attackRange)
             {
                 enemyAnimator.SetTrigger("MeleeAttack");
                 player.GetComponent<PlayerHealth>().TakeDamage((int)enemyType.meleeDamage);
                 Debug.Log($"Ataque cuerpo a cuerpo ejecutado correctamente. Daño: {enemyType.meleeDamage}");
             }
-            else if (enemyType.canRangedAttack && distanceToPlayer <= enemyType.detectionRange)
+            else if (enemyType.canRangedAttack && isPlayerInRange) //  dispara aunque se esté moviendo
             {
-                enemyAnimator.SetTrigger("RangedAttack");
+                Debug.Log("Intentando ataque a distancia...");
 
                 if (enemyType.projectilePrefab != null)
                 {
-                    Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
+                    enemyAnimator.SetTrigger("RangedAttack");
+
+                    GameObject projectile = Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
+                    EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
+
+                    if (projectileScript != null)
+                    {
+                        projectileScript.SetDirection(attackDirection);
+                        projectileScript.SetDamage((int)enemyType.rangedDamage);
+                        Debug.Log($"Proyectil instanciado con daño: {enemyType.rangedDamage}");
+                    }
+                    else
+                    {
+                        Debug.LogError("El prefab del proyectil no tiene el script EnemyProjectile.");
+                    }
                 }
-
-                player.GetComponent<PlayerHealth>().TakeDamage((int)enemyType.rangedDamage);
-                Debug.Log($"Ataque a distancia ejecutado correctamente. Daño: {enemyType.rangedDamage}");
+                else
+                {
+                    Debug.LogWarning("Intento de ataque a distancia, pero no hay un prefab de proyectil asignado.");
+                }
             }
-        }
-    }
-
-    void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.gameObject.CompareTag("Projectile"))
-        {
-            if (player == null || player.GetComponent<PlayerHealth>().CurrentHealth <= 0)
-            {
-                Debug.Log("Ignorando daño: el jugador ha muerto.");
-                return;
-            }
-
-            int damage = (int)enemyType.rangedDamage;
-            TakeDamage(damage);
-            Destroy(other.gameObject);
-            Debug.Log($"El enemigo recibió daño por impacto de proyectil. Daño aplicado: {damage}");
         }
     }
 

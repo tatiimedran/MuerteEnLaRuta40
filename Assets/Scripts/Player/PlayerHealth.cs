@@ -1,5 +1,5 @@
 using UnityEngine;
-using System.Collections; // Necesario para IEnumerator
+using System.Collections; 
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -32,15 +32,16 @@ public class PlayerHealth : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+
         if (currentHealth < 0)
             currentHealth = 0;
 
         healthBar.SetHealth(currentHealth);
+        Debug.Log($"Jugador recibió daño: {damage}. Vida restante: {currentHealth}");
 
-        // Activar el parpadeo cuando el jugador pierde vida
         if (!isBlinking)
         {
-            StartCoroutine(BlinkEffect(0.2f, 3)); // Configura la duración y número de parpadeos
+            StartCoroutine(BlinkEffect(0.2f, 3));
         }
 
         if (currentHealth <= 0)

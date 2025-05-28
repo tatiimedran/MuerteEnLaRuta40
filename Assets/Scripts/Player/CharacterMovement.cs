@@ -3,8 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class CharacterMovement : MonoBehaviour
 {
-    public float speed = 5f;
-    public float sprintSpeed = 10f;
+    public float speed = 3f;
+    public float sprintSpeed = 4f;
     private Rigidbody2D rb;
     private Vector2 direction;
     private Animator animator;
@@ -19,14 +19,14 @@ public class CharacterMovement : MonoBehaviour
         animator = GetComponent<Animator>();
 
         // Por defecto, equipa la primera arma
-        EquipWeapon(0); // Índice 0 (por ejemplo, Cuchillo)
+        EquipWeapon(0); // Índice 0 (Cuchillo)
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            // Disparar o atacar según el arma equipada
+            // Disparar o ataque melee según el arma equipada
             animator.SetTrigger(equippedWeapon.attackAnimation);
             ApplyDamageToEnemy();
         }
@@ -65,7 +65,7 @@ public class CharacterMovement : MonoBehaviour
         if (!stateInfo.IsTag(equippedWeapon.attackAnimation))
         {
             float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : speed;
-            rb.linearVelocity = direction * currentSpeed; // Usando linearVelocity
+            rb.linearVelocity = direction * currentSpeed; 
         }
         else
         {
@@ -141,7 +141,7 @@ public class CharacterMovement : MonoBehaviour
                 projectileScript.SetDamage(equippedWeapon.attackDamage);
             }
 
-            // Opcional: reproducir sonido de ataque si está configurado
+            // Reproducir sonido de ataque si está configurado
             if (equippedWeapon.attackSound != null)
             {
                 AudioSource.PlayClipAtPoint(equippedWeapon.attackSound, transform.position);
