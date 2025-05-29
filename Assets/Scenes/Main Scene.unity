@@ -1097,7 +1097,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7844740062096077961, guid: 839bba2891ede3141b5b660e368bd094, type: 3}
       propertyPath: m_Name
-      value: Rata
+      value: Mouse
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1523,9 +1523,9 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0
+    x: 0.36283186
     y: 0
-    width: 1
+    width: 0.27307206
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
@@ -1852,7 +1852,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6880553970298125613, guid: a3ae233f842d8514e9c4866b89e254cd, type: 3}
       propertyPath: m_Name
-      value: NubeToxica
+      value: ToxicCloud
       objectReference: {fileID: 0}
     - target: {fileID: 7077795384791652832, guid: a3ae233f842d8514e9c4866b89e254cd, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1909,7 +1909,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2272335043756362512, guid: e0deff31684f100479bac6214012fd15, type: 3}
       propertyPath: m_Name
-      value: "\xD1andu"
+      value: Rhea
       objectReference: {fileID: 0}
     - target: {fileID: 2634182078607204820, guid: e0deff31684f100479bac6214012fd15, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2006,7 +2006,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3129727567735700675, guid: b5afb18bd20ec6944968b0e9c1f5aa97, type: 3}
       propertyPath: m_Name
-      value: bala_0
+      value: Bullet
       objectReference: {fileID: 0}
     - target: {fileID: 3129727567735700675, guid: b5afb18bd20ec6944968b0e9c1f5aa97, type: 3}
       propertyPath: m_Layer
