@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 7634875633876093426}
   - component: {fileID: 5690856237036129188}
   m_Layer: 6
-  m_Name: Rata
+  m_Name: Mouse
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

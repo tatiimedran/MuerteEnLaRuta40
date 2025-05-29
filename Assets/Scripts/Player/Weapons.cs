@@ -3,19 +3,19 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "NewWeapon", menuName = "Scriptable Objects/Weapons")]
 public class Weapon : ScriptableObject
 {
-    [Header("Información del arma")]
-    public string weaponName;        // Nombre del arma
-    public int weaponSlot;           // Número asignado al arma
-    public int attackDamage;         // Daño que inflige el arma
-    public float attackRange;        // Rango de ataque (solo cuerpo a cuerpo)
+    [Header("Weapon Information")]
+    public string weaponName;            // Name of the weapon
+    public int weaponSlot;               // Slot number assigned to the weapon
+    public int attackDamage;             // Damage dealt by the weapon
+    public float attackRange;            // Attack range (melee only)
 
-    [Header("Configuración del ataque")]
-    public bool isRanged;            // Indica si es un arma de ataque a distancia
-    public GameObject projectilePrefab; // Prefab del proyectil (solo para armas a distancia)
-    public float projectileSpeed;      // Velocidad del proyectil
+    [Header("Attack Configuration")]
+    public bool isRanged;                // Indicates if the weapon is ranged
+    public GameObject projectilePrefab;  // Projectile prefab (for ranged weapons only)
+    public float projectileSpeed;        // Projectile speed
 
-    [Header("Animaciones y efectos")]
-    public string attackAnimation;   // Trigger o tag del Blend Tree
-    public GameObject attackEffect;  // Efecto visual
-    public AudioClip attackSound;    // Sonido al atacar
+    [Header("Animations and Effects")]
+    public string attackAnimation;       // Trigger or Blend Tree tag
+    public GameObject attackEffect;      // Visual effect
+    public AudioClip attackSound;        // Attack sound effect
 }

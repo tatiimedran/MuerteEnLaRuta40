@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyVision : MonoBehaviour
 {
-    public EnemyType enemyType; // Vinculación con el Scriptable Object
+    public EnemyType enemyType; // Link to the Scriptable Object
     private Transform player;
 
     void Start()
@@ -11,13 +11,13 @@ public class EnemyVision : MonoBehaviour
 
         if (player == null)
         {
-            Debug.LogError("No se encontró un objeto con la etiqueta 'Player'. Asegúrate de asignarlo.");
+            Debug.LogError("No object with the tag 'Player' was found. Make sure it is assigned.");
         }
     }
 
     public bool CanSeePlayer()
     {
-        if (player == null) return false; //  Prevenir NullReferenceException antes de calcular la distancia
+        if (player == null) return false; // Prevent NullReferenceException before calculating distance
 
         return Vector2.Distance(transform.position, player.position) <= enemyType.detectionRange;
     }

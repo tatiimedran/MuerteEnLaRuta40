@@ -4,8 +4,8 @@ public class EnemyProjectile : MonoBehaviour
 {
     private int damage;
     private Vector2 direction;
-    public float speed = 6f; // Velocidad del proyectil
-    public float lifetime = 5f; // Tiempo por el cual el proyectil permanece en escena
+    public float speed = 6f; // Projectile speed
+    public float lifetime = 5f; // Time the projectile stays in the scene
 
     private Rigidbody2D rb;
 
@@ -15,31 +15,31 @@ public class EnemyProjectile : MonoBehaviour
 
         if (rb == null)
         {
-            Debug.LogError("El prefab del proyectil no tiene un Rigidbody2D asignado.");
+            Debug.LogError("The projectile prefab has no Rigidbody2D assigned.");
             return;
         }
 
-        rb.linearVelocity = direction * speed; // Movimiento con física 
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Mejora la detección de colisión
+        rb.linearVelocity = direction * speed; // Physics-based movement
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Improves collision detection
 
-        Destroy(gameObject, lifetime); // Destruir al completar su ciclo 
+        Destroy(gameObject, lifetime); // Destroy after its lifetime ends
     }
 
     public void SetDamage(int damage)
     {
         this.damage = damage;
-        Debug.Log($"Daño del proyectil configurado: {damage}");
+        Debug.Log($"Projectile damage set: {damage}");
     }
 
     public void SetDirection(Vector2 newDirection)
     {
         direction = newDirection.normalized;
-        Debug.Log($"Dirección establecida: {direction}");
+        Debug.Log($"Direction set: {direction}");
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log($"Proyectil impactó con: {collision.gameObject.name}, Tag: {collision.tag}, Layer: {collision.gameObject.layer}");
+        Debug.Log($"Projectile hit: {collision.gameObject.name}, Tag: {collision.tag}, Layer: {collision.gameObject.layer}");
 
         if (collision.CompareTag("Player"))
         {
@@ -48,18 +48,18 @@ public class EnemyProjectile : MonoBehaviour
             if (player != null)
             {
                 player.TakeDamage(damage);
-                Debug.Log($"Impacto en el jugador. Daño aplicado: {damage}");
+                Debug.Log($"Hit the player. Damage applied: {damage}");
             }
             else
             {
-                Debug.LogError("El objeto con el tag 'Player' no tiene el componente PlayerHealth.");
+                Debug.LogError("The object with tag 'Player' does not have the PlayerHealth component.");
             }
 
             Destroy(gameObject);
         }
         else if (collision.CompareTag("Obstacle"))
         {
-            Debug.Log($"Proyectil impactó contra un obstáculo: {collision.gameObject.name}");
+            Debug.Log($"Projectile hit an obstacle: {collision.gameObject.name}");
             Destroy(gameObject);
         }
     }

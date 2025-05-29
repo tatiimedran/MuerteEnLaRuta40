@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private int damage; // Daño infligido por el proyectil
+    private int damage; // Damage dealt by the projectile
 
-    // Configurar el daño del proyectil desde el arma equipada
+    // Set the projectile's damage from the equipped weapon
     public void SetDamage(int damage)
     {
         this.damage = damage;
@@ -12,27 +12,23 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // Detectar impacto con enemigos
+        // Detect collision with enemies
         if (collision.CompareTag("Enemy"))
         {
             EnemyBehavior enemy = collision.GetComponent<EnemyBehavior>();
             if (enemy != null)
             {
-                enemy.TakeDamage(damage); 
+                enemy.TakeDamage(damage);
             }
 
-            // Destruir el proyectil tras impactar
+            // Destroy the projectile after hitting
             Destroy(gameObject);
         }
         else if (collision.CompareTag("Obstacle"))
         {
-            // Destruir el proyectil si impacta con un obstáculo
-            Debug.Log("Proyectil impactó con un obstáculo.");
+            // Destroy the projectile if it hits an obstacle
+            Debug.Log("Projectile hit an obstacle.");
             Destroy(gameObject);
         }
-        
     }
 }
-
-
-

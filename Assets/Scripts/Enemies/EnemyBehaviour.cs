@@ -32,7 +32,7 @@ public class EnemyBehavior : MonoBehaviour
 
         if (player == null)
         {
-            Debug.LogError("No se encontró un objeto con la etiqueta 'Player'.");
+            Debug.LogError("No object with the tag 'Player' was found.");
         }
 
         agent.speed = enemyType.speed;
@@ -57,7 +57,7 @@ public class EnemyBehavior : MonoBehaviour
                 enemyAnimator.SetBool("EnemyIsMoving", false);
             }
 
-            HandleAttack(); // El enemigo puede atacar mientras se mueve
+            HandleAttack(); // The enemy can attack while moving.
         }
         else
         {
@@ -71,7 +71,7 @@ public class EnemyBehavior : MonoBehaviour
         if (player == null || player.GetComponent<PlayerHealth>().CurrentHealth <= 0) return;
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
-        Debug.Log($"Distancia al jugador: {distanceToPlayer}, Rango de detección: {enemyType.detectionRange}");
+        Debug.Log($"Distance to Player: {distanceToPlayer}, Detection Range: {enemyType.detectionRange}");
 
         if (Time.time >= lastAttackTime + enemyType.attackCooldown)
         {
@@ -85,11 +85,11 @@ public class EnemyBehavior : MonoBehaviour
             {
                 enemyAnimator.SetTrigger("MeleeAttack");
                 player.GetComponent<PlayerHealth>().TakeDamage((int)enemyType.meleeDamage);
-                Debug.Log($"Ataque cuerpo a cuerpo ejecutado correctamente. Daño: {enemyType.meleeDamage}");
+                Debug.Log($"Melee attack executed correctly. Damage: {enemyType.meleeDamage}");
             }
-            else if (enemyType.canRangedAttack && isPlayerInRange) //  dispara aunque se esté moviendo
+            else if (enemyType.canRangedAttack && isPlayerInRange) //  shoot even if you are moving
             {
-                Debug.Log("Intentando ataque a distancia...");
+                Debug.Log("Attempting a long-distance attack...");
 
                 if (enemyType.projectilePrefab != null)
                 {
@@ -102,16 +102,16 @@ public class EnemyBehavior : MonoBehaviour
                     {
                         projectileScript.SetDirection(attackDirection);
                         projectileScript.SetDamage((int)enemyType.rangedDamage);
-                        Debug.Log($"Proyectil instanciado con daño: {enemyType.rangedDamage}");
+                        Debug.Log($"Projectile instantiated with damage: {enemyType.rangedDamage}");
                     }
                     else
                     {
-                        Debug.LogError("El prefab del proyectil no tiene el script EnemyProjectile.");
+                        Debug.LogError("The projectile prefab does not have the EnemyProjectile script.");
                     }
                 }
                 else
                 {
-                    Debug.LogWarning("Intento de ataque a distancia, pero no hay un prefab de proyectil asignado.");
+                    Debug.LogWarning("Attempting a ranged attack, but there is no assigned projectile prefab..");
                 }
             }
         }
@@ -127,16 +127,16 @@ public class EnemyBehavior : MonoBehaviour
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        //Solo aplicar daño si el ataque es cuerpo a cuerpo y el jugador está cerca
+        //Only apply damage if the attack is melee and the player is nearby.
         if (isMeleeAttack && distanceToPlayer > enemyType.attackRange)
         {
-            Debug.Log("Ignorando daño por ataque cuerpo a cuerpo: el jugador está demasiado lejos.");
+            Debug.Log("Ignoring damage from melee attack: the player is too far away.");
             return;
         }
 
-        Debug.Log($"Enemigo impactado. Vida antes del daño: {currentHealth}, daño recibido: {damage}");
+        Debug.Log($"Enemy hit. Health before damage: {currentHealth}, damage taken: {damage}");
         currentHealth -= damage;
-        Debug.Log($"Nueva vida del enemigo después del daño: {currentHealth}");
+        Debug.Log($"New life of the enemy after the damage: {currentHealth}");
 
         if (!isBlinking)
         {
@@ -145,14 +145,14 @@ public class EnemyBehavior : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            Debug.Log("El enemigo ha muerto.");
+            Debug.Log("The enemy has died.");
             Die();
         }
     }
 
     private void Die()
     {
-        if (!this.enabled) return; //Evita múltiples ejecuciones
+        if (!this.enabled) return; //Prevents multiple executions
         enemyAnimator.SetTrigger("Death");
         enemyCollider.enabled = false;
         agent.isStopped = true;

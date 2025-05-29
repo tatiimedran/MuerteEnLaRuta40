@@ -9,34 +9,34 @@ public class CharacterMovement : MonoBehaviour
     private Vector2 direction;
     private Animator animator;
 
-    [Header("Armas del jugador")]
-    public Weapon[] availableWeapons; // Lista de armas disponibles
-    private Weapon equippedWeapon;    // Arma actualmente equipada
+    [Header("Player weapons")]
+    public Weapon[] availableWeapons; // List of available weapons
+    private Weapon equippedWeapon;    // Currently equipped weapon
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
 
-        // Por defecto, equipa la primera arma
-        EquipWeapon(0); // Índice 0 (Cuchillo)
+        // By default, equip the first weapon
+        EquipWeapon(0); // Index 0 (Knife)
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.F))
         {
-            // Disparar o ataque melee según el arma equipada
+            // Fire or melee attack depending on the equipped weapon
             animator.SetTrigger(equippedWeapon.attackAnimation);
             ApplyDamageToEnemy();
         }
 
-        // Capturar la dirección del movimiento
+        // Capture movement direction
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
         float moveVertical = Input.GetAxisRaw("Vertical");
         direction = new Vector2(moveHorizontal, moveVertical).normalized;
 
-        // Actualizar animaciones y direcciones
+        // Update animations and directions
         if (direction != Vector2.zero)
         {
             animator.SetFloat("MoveHorizontal", direction.x);
@@ -53,29 +53,29 @@ public class CharacterMovement : MonoBehaviour
             animator.SetFloat("MoveVertical", animator.GetFloat("LastMoveVertical"));
         }
 
-        // Cambiar arma equipada
+        // Switch equipped weapon
         if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeapon(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) EquipWeapon(1);
     }
 
     void FixedUpdate()
     {
-        // Gestionar movimiento según el estado de ataque
+        // Handle movement depending on attack state
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         if (!stateInfo.IsTag(equippedWeapon.attackAnimation))
         {
             float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : speed;
-            rb.linearVelocity = direction * currentSpeed; 
+            rb.linearVelocity = direction * currentSpeed;
         }
         else
         {
-            rb.linearVelocity = Vector2.zero; // Detener movimiento durante el ataque
+            rb.linearVelocity = Vector2.zero; // Stop movement during attack
         }
     }
 
     private void ApplyDamageToEnemy()
     {
-        Debug.Log($"El arma equipada ({equippedWeapon.weaponName}) es a distancia: {equippedWeapon.isRanged}");
+        Debug.Log($"Equipped weapon ({equippedWeapon.weaponName}) is ranged: {equippedWeapon.isRanged}");
 
         if (equippedWeapon.isRanged)
         {
@@ -83,9 +83,9 @@ public class CharacterMovement : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Atacando con: {equippedWeapon.weaponName}");
+            Debug.Log($"Attacking with: {equippedWeapon.weaponName}");
 
-            //para verificar el alcance
+            // To check attack range
             RaycastHit2D hitEnemy = Physics2D.Raycast(transform.position, direction, equippedWeapon.attackRange);
 
             if (hitEnemy.collider != null && hitEnemy.collider.CompareTag("Enemy"))
@@ -95,14 +95,14 @@ public class CharacterMovement : MonoBehaviour
                 {
                     float distanceToEnemy = Vector2.Distance(transform.position, enemy.transform.position);
 
-                    if (distanceToEnemy <= equippedWeapon.attackRange) //Solo aplicar daño si está dentro del rango real
+                    if (distanceToEnemy <= equippedWeapon.attackRange) // Only apply damage if actually within range
                     {
                         enemy.TakeDamage(equippedWeapon.attackDamage, true);
-                        Debug.Log($"Enemigo golpeado correctamente: {enemy.enemyType.enemyName}, Salud restante: {enemy.enemyType.health}");
+                        Debug.Log($"Enemy successfully hit: {enemy.enemyType.enemyName}, Remaining health: {enemy.enemyType.health}");
                     }
                     else
                     {
-                        Debug.Log("Ataque cuerpo a cuerpo ignorado: el enemigo está demasiado lejos.");
+                        Debug.Log("Melee attack ignored: enemy is too far.");
                     }
                 }
             }
@@ -112,46 +112,45 @@ public class CharacterMovement : MonoBehaviour
     private void ShootProjectile()
     {
         if (equippedWeapon.projectilePrefab != null)
-
         {
-            // Instanciar el proyectil
+            // Instantiate the projectile
             GameObject projectile = Instantiate(
-                equippedWeapon.projectilePrefab,   // Prefab del proyectil
-                transform.position,               // Posición inicial (jugador)
-                Quaternion.identity               // Sin rotación inicial
+                equippedWeapon.projectilePrefab,   // Projectile prefab
+                transform.position,               // Initial position (player)
+                Quaternion.identity               // No initial rotation
             );
 
-            // Configurar la dirección y velocidad del proyectil
+            // Set projectile direction and speed
             Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
             if (rb != null)
             {
-                // Obtener dirección desde el Animator
+                // Get direction from the Animator
                 Vector2 shootDirection = new Vector2(
                     animator.GetFloat("MoveHorizontal"),
                     animator.GetFloat("MoveVertical")
                 ).normalized;
 
-                rb.linearVelocity = shootDirection * equippedWeapon.projectileSpeed; // Velocidad del proyectil
+                rb.linearVelocity = shootDirection * equippedWeapon.projectileSpeed; // Projectile speed
             }
 
-            // Transferir el daño del arma al proyectil
+            // Transfer weapon damage to projectile
             Projectile projectileScript = projectile.GetComponent<Projectile>();
             if (projectileScript != null)
             {
                 projectileScript.SetDamage(equippedWeapon.attackDamage);
             }
 
-            // Reproducir sonido de ataque si está configurado
+            // Play attack sound if available
             if (equippedWeapon.attackSound != null)
             {
                 AudioSource.PlayClipAtPoint(equippedWeapon.attackSound, transform.position);
             }
 
-            Debug.Log($"Proyectil disparado con: {equippedWeapon.weaponName}, daño = {equippedWeapon.attackDamage}");
+            Debug.Log($"Projectile fired with: {equippedWeapon.weaponName}, damage = {equippedWeapon.attackDamage}");
         }
         else
         {
-            Debug.LogWarning("No hay prefab de proyectil asignado a esta arma.");
+            Debug.LogWarning("No projectile prefab assigned to this weapon.");
         }
     }
 
@@ -160,11 +159,11 @@ public class CharacterMovement : MonoBehaviour
         if (weaponIndex >= 0 && weaponIndex < availableWeapons.Length)
         {
             equippedWeapon = availableWeapons[weaponIndex];
-            Debug.Log($"Arma equipada: {equippedWeapon.weaponName}");
+            Debug.Log($"Weapon equipped: {equippedWeapon.weaponName}");
         }
         else
         {
-            Debug.LogWarning("Índice de arma inválido");
+            Debug.LogWarning("Invalid weapon index");
         }
     }
 }
