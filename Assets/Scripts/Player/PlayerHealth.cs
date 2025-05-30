@@ -1,27 +1,25 @@
 using UnityEngine;
-using System.Collections;
+using System;
+using System.Collections; 
 
 public class PlayerHealth : MonoBehaviour
 {
-    public HealthBar healthBar; // Health bar in the UI
     public int maxHealth = 100;
     private int currentHealth;
 
-    private SpriteRenderer spriteRenderer; // Reference to the SpriteRenderer to control the color
-    private bool isBlinking = false; // Controls if the player is already blinking
+    private SpriteRenderer spriteRenderer;  // Reference to the SpriteRenderer to control the color
 
-    // Public property to access current health (read-only)
-    public int CurrentHealth
-    {
-        get { return currentHealth; }
-    }
+    private bool isBlinking = false;  // Controls if the player is already blinking 
 
-    void Start()
+    public static event Action<int> OnHealthChanged;
+
+    public int CurrentHealth => currentHealth;
+
+    private void Start()
     {
         currentHealth = maxHealth;
-        healthBar.SetMaxHealth(maxHealth); // Set the bar to max at start
+        OnHealthChanged?.Invoke(currentHealth);
 
-        // Get the player's SpriteRenderer
         spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null)
         {
@@ -32,16 +30,15 @@ public class PlayerHealth : MonoBehaviour
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+        currentHealth = Mathf.Max(currentHealth, 0); // Ensure health does not go negative
 
-        if (currentHealth < 0)
-            currentHealth = 0;
+        Debug.Log($"Player took damage: {damage}. Current health: {currentHealth}"); 
 
-        healthBar.SetHealth(currentHealth);
-        Debug.Log($"Player took damage: {damage}. Remaining health: {currentHealth}");
+        OnHealthChanged?.Invoke(currentHealth); // Notify HealthBar
 
         if (!isBlinking)
         {
-            StartCoroutine(BlinkEffect(0.2f, 3));
+            StartCoroutine(BlinkEffect(0.2f, 3)); // Blink effect when damaged
         }
 
         if (currentHealth <= 0)
@@ -50,37 +47,28 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    void HandleDeath()
-    {
-        Debug.Log("Player has died!");
-        GetComponent<Animator>().SetTrigger("Die"); // Trigger death animation
-        this.enabled = false; // Disable this script
-        GetComponent<CharacterMovement>().enabled = false; // Disable movement
-    }
-
-    public void Heal(int amount)
-    {
-        currentHealth += amount;
-        if (currentHealth > maxHealth)
-            currentHealth = maxHealth;
-
-        healthBar.SetHealth(currentHealth);
-    }
-
     private IEnumerator BlinkEffect(float blinkDuration, int blinkTimes)
     {
         isBlinking = true;
-        Color originalColor = spriteRenderer.color; // Store the original color
-        Color blinkColor = Color.red; // The color the player will blink to
+        Color originalColor = spriteRenderer.color; // Store the original color 
+        Color blinkColor = Color.red;  // The color the player will blink to 
 
         for (int i = 0; i < blinkTimes; i++)
         {
-            spriteRenderer.color = blinkColor; // Change to damage color
+            spriteRenderer.color = blinkColor; // Change to damage color 
             yield return new WaitForSeconds(blinkDuration / 2); // Wait half the blink time
-            spriteRenderer.color = originalColor; // Revert to original color
+            spriteRenderer.color = originalColor; // Revert to original color 
             yield return new WaitForSeconds(blinkDuration / 2); // Wait the other half
         }
 
         isBlinking = false;
     }
+    private void HandleDeath()
+    {
+        Debug.Log("Player has died!");
+        GetComponent<Animator>().SetTrigger("Die"); // Trigger death animation
+        this.enabled = false; // Disable PlayerHealth script
+        GetComponent<CharacterMovement>().enabled = false; // Disable movement
+    }
 }
+

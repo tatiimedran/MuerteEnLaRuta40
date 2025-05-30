@@ -5,7 +5,7 @@ public class EnemyProjectile : MonoBehaviour
     private int damage;
     private Vector2 direction;
     public float speed = 6f; // Projectile speed
-    public float lifetime = 5f; // Time the projectile stays in the scene
+    public float lifetime = 3f; // Time before destruction
 
     private Rigidbody2D rb;
 
@@ -13,53 +13,51 @@ public class EnemyProjectile : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
 
+        // Check if the projectile has a Rigidbody2D assigned
         if (rb == null)
         {
             Debug.LogError("The projectile prefab has no Rigidbody2D assigned.");
             return;
         }
 
-        rb.linearVelocity = direction * speed; // Physics-based movement
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous; // Improves collision detection
+        //Improves collision detection
+        rb.linearVelocity = direction * speed;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
 
-        Destroy(gameObject, lifetime); // Destroy after its lifetime ends
+        // Destroy the projectile after its lifetime ends
+        Destroy(gameObject, lifetime);
     }
 
+    // Assign damage value to the projectile
     public void SetDamage(int damage)
     {
         this.damage = damage;
         Debug.Log($"Projectile damage set: {damage}");
     }
 
+    // Assign direction to the projectile
     public void SetDirection(Vector2 newDirection)
     {
         direction = newDirection.normalized;
-        Debug.Log($"Direction set: {direction}");
     }
 
+    // Handle projectile collisions
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log($"Projectile hit: {collision.gameObject.name}, Tag: {collision.tag}, Layer: {collision.gameObject.layer}");
-
         if (collision.CompareTag("Player"))
         {
-            PlayerHealth player = collision.GetComponent<PlayerHealth>();
+            PlayerHealth playerHealth = collision.GetComponent<PlayerHealth>();
 
-            if (player != null)
+            if (playerHealth != null)
             {
-                player.TakeDamage(damage);
-                Debug.Log($"Hit the player. Damage applied: {damage}");
-            }
-            else
-            {
-                Debug.LogError("The object with tag 'Player' does not have the PlayerHealth component.");
+                playerHealth.TakeDamage(damage); // HealthBar updates automatically
             }
 
             Destroy(gameObject);
         }
-        else if (collision.CompareTag("Obstacle"))
+        else // Any other collision destroys the projectile
         {
-            Debug.Log($"Projectile hit an obstacle: {collision.gameObject.name}");
+            Debug.Log($"Projectile hit: {collision.gameObject.name}");
             Destroy(gameObject);
         }
     }

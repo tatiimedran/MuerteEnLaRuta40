@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private int damage; // Damage dealt by the projectile
+    private int damage; 
 
     // Set the projectile's damage from the equipped weapon
     public void SetDamage(int damage)

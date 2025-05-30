@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5451aa431df03f04e8e5c05ec27edb81, type: 3}
   m_Name: MeleeEnemyType 1
   m_EditorClassIdentifier: 
-  enemyName: Zorro Patagonico
+  enemyName: Fox
   speed: 2
   health: 50
   canMeleeAttack: 1

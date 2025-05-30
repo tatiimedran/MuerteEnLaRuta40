@@ -97,13 +97,9 @@ public class CharacterMovement : MonoBehaviour
 
                     if (distanceToEnemy <= equippedWeapon.attackRange) // Only apply damage if actually within range
                     {
-                        enemy.TakeDamage(equippedWeapon.attackDamage, true);
-                        Debug.Log($"Enemy successfully hit: {enemy.enemyType.enemyName}, Remaining health: {enemy.enemyType.health}");
+                        enemy.TakeDamage(equippedWeapon.attackDamage);
                     }
-                    else
-                    {
-                        Debug.Log("Melee attack ignored: enemy is too far.");
-                    }
+          
                 }
             }
         }
