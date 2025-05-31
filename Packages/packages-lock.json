@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.h8man.2d.navmeshplus": {
-      "version": "file:../NavMeshPlus-master/NavMeshPlus-master",
+      "version": "file:C:/Users/renep/Downloads/NavMeshPlus-master (1)/NavMeshPlus-master",
       "depth": 0,
       "source": "local",
       "dependencies": {}
