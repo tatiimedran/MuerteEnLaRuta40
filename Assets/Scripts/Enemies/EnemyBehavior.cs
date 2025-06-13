@@ -44,6 +44,28 @@ public class EnemyBehavior : MonoBehaviour
         agent.updateRotation = false;
         agent.updateUpAxis = false;
     }
+    private void ShootProjectile(Vector2 direction)
+    {
+        if (enemyType.projectilePrefab != null)
+        {
+            GameObject projectile = Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
+            EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
+
+            if (projectileScript != null)
+            {
+                projectileScript.SetDirection(direction);
+                projectileScript.SetDamage((int)enemyType.rangedDamage);
+            }
+            else
+            {
+                Debug.LogError("EnemyProjectile script not found on projectile prefab.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("No projectile prefab assigned to this enemy type.");
+        }
+    }
 
     private void Update()
     {
@@ -85,29 +107,37 @@ public class EnemyBehavior : MonoBehaviour
         lastAttackTime = Time.time;
         Vector2 attackDirection = (player.position - transform.position).normalized;
 
+        // Actualizar dirección para la animación
         enemyAnimator.SetFloat("MoveHorizontal", attackDirection.x);
         enemyAnimator.SetFloat("MoveVertical", attackDirection.y);
 
-        if (enemyType.canMeleeAttack && distanceToPlayer <= enemyType.attackRange)
+        if (enemyType.canMeleeAttack && enemyType.canRangedAttack) // Enemigo híbrido
         {
-            enemyAnimator.SetTrigger("MeleeAttack");
-            playerHealth.TakeDamage((int)enemyType.meleeDamage);
-        }
-        else if (enemyType.canRangedAttack && isPlayerInRange && enemyType.projectilePrefab != null)
-        {
-            enemyAnimator.SetTrigger("RangedAttack");
-
-            GameObject projectile = Instantiate(enemyType.projectilePrefab, transform.position, Quaternion.identity);
-            EnemyProjectile projectileScript = projectile.GetComponent<EnemyProjectile>();
-
-            if (projectileScript != null)
+            if (distanceToPlayer <= enemyType.meleeAttackRange)
             {
-                projectileScript.SetDirection(attackDirection);
-                projectileScript.SetDamage((int)enemyType.rangedDamage);
+                enemyAnimator.SetTrigger("MeleeAttack");
+                playerHealth.TakeDamage((int)enemyType.meleeDamage);
             }
-            else
+            else if (distanceToPlayer <= enemyType.rangedAttackRange)
             {
-                Debug.LogError("The projectile prefab does not have the EnemyProjectile script.");
+                enemyAnimator.SetTrigger("RangedAttack");
+                ShootProjectile(attackDirection);
+            }
+        }
+        else if (enemyType.canMeleeAttack) // Solo cuerpo a cuerpo
+        {
+            if (distanceToPlayer <= enemyType.meleeAttackRange)
+            {
+                enemyAnimator.SetTrigger("MeleeAttack");
+                playerHealth.TakeDamage((int)enemyType.meleeDamage);
+            }
+        }
+        else if (enemyType.canRangedAttack) // Solo a distancia
+        {
+            if (distanceToPlayer <= enemyType.rangedAttackRange)
+            {
+                enemyAnimator.SetTrigger("RangedAttack");
+                ShootProjectile(attackDirection);
             }
         }
     }
@@ -159,19 +189,30 @@ public class EnemyBehavior : MonoBehaviour
     {
         if (!this.enabled) return;
 
-        enemyAnimator.SetTrigger("Death");
+        enemyAnimator.SetTrigger("Death"); // Activar animación de muerte
         enemyCollider.enabled = false;
         agent.isStopped = true;
         this.enabled = false;
-        StartCoroutine(DestroyAfterAnimation());
+
+        // Si el enemigo tiene un efecto de muerte asignado, instanciarlo y eliminar el sprite
+        if (enemyType.deathEffectPrefab != null)
+        {
+            spriteRenderer.enabled = false; // Ocultar el sprite para evitar interferencias con partículas
+            Instantiate(enemyType.deathEffectPrefab, transform.position, Quaternion.identity);
+            Destroy(gameObject); // Eliminar enemigo inmediatamente
+        }
+        else
+        {
+            StartCoroutine(DestroyAfterAnimation()); // Enemigos sin efecto esperan su animación
+        }
     }
 
     private IEnumerator DestroyAfterAnimation()
     {
         float deathAnimationDuration = enemyAnimator.GetCurrentAnimatorStateInfo(0).length;
-        yield return new WaitForSeconds(deathAnimationDuration + 2f);
+        yield return new WaitForSeconds(deathAnimationDuration + 2f); // Espera la animación + 2 segundos
         Destroy(gameObject);
     }
 
-    
+
 }

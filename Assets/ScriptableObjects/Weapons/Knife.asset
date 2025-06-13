@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Knife
   m_EditorClassIdentifier: 
   weaponName: Knife
-  weaponSlot: 2
+  weaponSlot: 1
   attackDamage: 10
   attackRange: 1
   isRanged: 0

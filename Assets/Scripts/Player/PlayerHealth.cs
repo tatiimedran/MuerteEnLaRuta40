@@ -56,9 +56,9 @@ public class PlayerHealth : MonoBehaviour
         for (int i = 0; i < blinkTimes; i++)
         {
             spriteRenderer.color = blinkColor; // Change to damage color 
-            yield return new WaitForSeconds(blinkDuration / 2); // Wait half the blink time
+            yield return new WaitForSeconds(blinkDuration / 3); // Wait half the blink time
             spriteRenderer.color = originalColor; // Revert to original color 
-            yield return new WaitForSeconds(blinkDuration / 2); // Wait the other half
+            yield return new WaitForSeconds(blinkDuration / 3); // Wait the other half
         }
 
         isBlinking = false;
@@ -67,6 +67,7 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("Player has died!");
         GetComponent<Animator>().SetTrigger("Die"); // Trigger death animation
+        GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero; // Detiene el movimiento completamente
         this.enabled = false; // Disable PlayerHealth script
         GetComponent<CharacterMovement>().enabled = false; // Disable movement
     }

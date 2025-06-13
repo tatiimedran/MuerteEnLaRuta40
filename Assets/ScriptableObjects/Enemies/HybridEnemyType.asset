@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: Guanaco
   speed: 5
-  health: 500
+  health: 150
   canMeleeAttack: 1
   canRangedAttack: 1
   meleeDamage: 25
   rangedDamage: 30
-  projectilePrefab: {fileID: 0}
-  attackRange: 0
-  detectionRange: 0
+  meleeAttackRange: 2
+  rangedAttackRange: 5
+  projectilePrefab: {fileID: 6880553970298125613, guid: a3ae233f842d8514e9c4866b89e254cd, type: 3}
+  detectionRange: 8
+  attackCooldown: 1
+  deathEffectPrefab: {fileID: 2898728780983059899, guid: 6b85902f46631d748a1cfdad3133ca46, type: 3}

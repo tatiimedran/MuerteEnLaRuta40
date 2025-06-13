@@ -32,8 +32,8 @@ Transform:
   m_GameObject: {fileID: 7844740062096077961}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.189, y: 1.061, z: 0}
-  m_LocalScale: {x: 1.9454976, y: 1.9454976, z: 1.9454976}
+  m_LocalPosition: {x: 0.168841, y: 1.0809499, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -189,11 +189,11 @@ PolygonCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0.01, y: 0.01}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.24, y: 0.07}
+    oldSize: {x: 1.5, y: 0.4375}
     newSize: {x: 0.24, y: 0.07}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -201,11 +201,14 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0.11733965, y: 0.011621758}
-      - {x: 0.05268339, y: 0.038672626}
-      - {x: -0.005219981, y: 0.039369047}
-      - {x: -0.1291784, y: -0.028922975}
-      - {x: 0.11316127, y: -0.0331015}
+    - - {x: 0.6814635, y: 0.106755376}
+      - {x: 0.4506623, y: 0.22659981}
+      - {x: -0.22661951, y: 0.23709345}
+      - {x: -0.27360564, y: -0.011041641}
+      - {x: -0.75458586, y: -0.052997947}
+      - {x: -0.7568788, y: -0.18206304}
+      - {x: 0.75, y: -0.21875}
+      - {x: 0.75458586, y: 0.06970906}
   m_UseDelaunayMesh: 0
 --- !u!195 &7634875633876093426
 NavMeshAgent:
@@ -216,17 +219,17 @@ NavMeshAgent:
   m_GameObject: {fileID: 7844740062096077961}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.1
+  m_Radius: 0.5
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 120
-  m_StoppingDistance: 0.1
+  m_StoppingDistance: 0.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 0.36
-  m_BaseOffset: 0.1
+  m_Height: 0.4375
+  m_BaseOffset: 0.21875
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!114 &5690856237036129188
@@ -241,4 +244,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 871b407967907854e8dd83a5754391e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyType: {fileID: 11400000, guid: 53103d69a46d7464586bc0138f4720da, type: 2}
+  enemyType: {fileID: 11400000, guid: 1cc5600a678174347b8a3f89c1470195, type: 2}

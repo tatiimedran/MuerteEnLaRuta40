@@ -75,31 +75,28 @@ public class CharacterMovement : MonoBehaviour
 
     private void ApplyDamageToEnemy()
     {
-        Debug.Log($"Equipped weapon ({equippedWeapon.weaponName}) is ranged: {equippedWeapon.isRanged}");
-
         if (equippedWeapon.isRanged)
         {
-            ShootProjectile();
+            ShootProjectile(); 
         }
         else
         {
-            Debug.Log($"Attacking with: {equippedWeapon.weaponName}");
+            float attackRadius = equippedWeapon.attackRange;
+            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRadius);
 
-            // To check attack range
-            RaycastHit2D hitEnemy = Physics2D.Raycast(transform.position, direction, equippedWeapon.attackRange);
-
-            if (hitEnemy.collider != null && hitEnemy.collider.CompareTag("Enemy"))
+            foreach (Collider2D enemyCollider in hitEnemies)
             {
-                EnemyBehavior enemy = hitEnemy.collider.GetComponent<EnemyBehavior>();
-                if (enemy != null)
+                if (enemyCollider.CompareTag("Enemy"))
                 {
-                    float distanceToEnemy = Vector2.Distance(transform.position, enemy.transform.position);
-
-                    if (distanceToEnemy <= equippedWeapon.attackRange) // Only apply damage if actually within range
+                    EnemyBehavior enemy = enemyCollider.GetComponent<EnemyBehavior>();
+                    if (enemy != null)
                     {
-                        enemy.TakeDamage(equippedWeapon.attackDamage);
+                        float distanceToEnemy = Vector2.Distance(transform.position, enemy.transform.position);
+                        if (distanceToEnemy <= equippedWeapon.attackRange)
+                        {
+                            enemy.TakeDamage(equippedWeapon.attackDamage);
+                        }
                     }
-          
                 }
             }
         }

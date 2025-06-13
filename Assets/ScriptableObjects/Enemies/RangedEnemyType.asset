@@ -13,13 +13,15 @@ MonoBehaviour:
   m_Name: RangedEnemyType
   m_EditorClassIdentifier: 
   enemyName: Rhea
-  speed: 2
+  speed: 7
   health: 150
   canMeleeAttack: 0
   canRangedAttack: 1
   meleeDamage: 0
   rangedDamage: 30
+  meleeAttackRange: 2
+  rangedAttackRange: 10
   projectilePrefab: {fileID: 6880553970298125613, guid: a3ae233f842d8514e9c4866b89e254cd, type: 3}
-  attackRange: 3
-  detectionRange: 3
+  detectionRange: 10
   attackCooldown: 1
+  deathEffectPrefab: {fileID: 0}

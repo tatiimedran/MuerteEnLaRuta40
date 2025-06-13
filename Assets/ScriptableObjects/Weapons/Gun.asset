@@ -18,7 +18,7 @@ MonoBehaviour:
   attackRange: 5
   isRanged: 1
   projectilePrefab: {fileID: 3129727567735700675, guid: b5afb18bd20ec6944968b0e9c1f5aa97, type: 3}
-  projectileSpeed: 9
+  projectileSpeed: 15
   attackAnimation: AttackGun
   attackEffect: {fileID: 0}
   attackSound: {fileID: 0}
