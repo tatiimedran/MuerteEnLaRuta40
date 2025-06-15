@@ -8,6 +8,7 @@ TagManager:
   - Obstacle
   - Projectile
   - EnemyProjectile
+  - Destructible
   layers:
   - Default
   - TransparentFX
@@ -17,9 +18,9 @@ TagManager:
   - UI
   - Enemy
   - EnemyProjectile
-  - 
-  - 
-  - 
+  - DestructibleObject
+  - Fences
+  - PlayerProjectile
   - 
   - 
   - 

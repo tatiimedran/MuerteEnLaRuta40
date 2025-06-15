@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private int damage; 
+    private int damage;
 
     // Set the projectile's damage from the equipped weapon
     public void SetDamage(int damage)
@@ -20,13 +20,21 @@ public class Projectile : MonoBehaviour
             {
                 enemy.TakeDamage(damage);
             }
-
-            // Destroy the projectile after hitting
             Destroy(gameObject);
         }
+        // Detect collision with destructible objects
+        else if (collision.CompareTag("Destructible"))
+        {
+            DestructibleObject destructible = collision.GetComponent<DestructibleObject>();
+            if (destructible != null)
+            {
+                destructible.TakeDamage(damage);
+            }
+            Destroy(gameObject);
+        }
+        // Detect collision with obstacles
         else if (collision.CompareTag("Obstacle"))
         {
-            // Destroy the projectile if it hits an obstacle
             Debug.Log("Projectile hit an obstacle.");
             Destroy(gameObject);
         }

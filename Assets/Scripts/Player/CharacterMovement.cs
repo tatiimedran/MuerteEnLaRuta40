@@ -77,24 +77,51 @@ public class CharacterMovement : MonoBehaviour
     {
         if (equippedWeapon.isRanged)
         {
-            ShootProjectile(); 
+            ShootProjectile();
         }
         else
         {
             float attackRadius = equippedWeapon.attackRange;
-            Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(transform.position, attackRadius);
 
-            foreach (Collider2D enemyCollider in hitEnemies)
+            // 1. Ataque a enemigos (sin cambios)
+            Collider2D[] hitTargets = Physics2D.OverlapCircleAll(transform.position, attackRadius);
+            foreach (Collider2D targetCollider in hitTargets)
             {
-                if (enemyCollider.CompareTag("Enemy"))
+                if (targetCollider.CompareTag("Enemy"))
                 {
-                    EnemyBehavior enemy = enemyCollider.GetComponent<EnemyBehavior>();
+                    EnemyBehavior enemy = targetCollider.GetComponent<EnemyBehavior>();
                     if (enemy != null)
                     {
-                        float distanceToEnemy = Vector2.Distance(transform.position, enemy.transform.position);
-                        if (distanceToEnemy <= equippedWeapon.attackRange)
+                        float distance = Vector2.Distance(transform.position, enemy.transform.position);
+                        if (distance <= equippedWeapon.attackRange)
                         {
                             enemy.TakeDamage(equippedWeapon.attackDamage);
+                        }
+                    }
+                }
+            }
+
+            // 2. Ataque a destructibles (con rango y origen personalizados)
+            Vector2 attackDirection = new Vector2(
+                animator.GetFloat("LastMoveHorizontal"),
+                animator.GetFloat("LastMoveVertical")
+            ).normalized;
+
+            Vector2 destructibleOrigin = (Vector2)transform.position + attackDirection * (attackRadius * 0.7f);
+            float destructibleRange = attackRadius * 0.5f;
+
+            Collider2D[] hitObjects = Physics2D.OverlapCircleAll(destructibleOrigin, destructibleRange);
+            foreach (Collider2D targetCollider in hitObjects)
+            {
+                if (targetCollider.CompareTag("Destructible"))
+                {
+                    DestructibleObject destructible = targetCollider.GetComponent<DestructibleObject>();
+                    if (destructible != null)
+                    {
+                        float distance = Vector2.Distance(destructibleOrigin, destructible.transform.position);
+                        if (distance <= destructibleRange)
+                        {
+                            destructible.TakeDamage(equippedWeapon.attackDamage);
                         }
                     }
                 }
