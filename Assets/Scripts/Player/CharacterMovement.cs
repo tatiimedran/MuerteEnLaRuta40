@@ -31,6 +31,21 @@ public class CharacterMovement : MonoBehaviour
             ApplyDamageToEnemy();
         }
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            // Fire or melee attack with spacebar
+            animator.SetTrigger(equippedWeapon.attackAnimation);
+            ApplyDamageToEnemy();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            // Equip previous weapon (quick weapon swap)
+            int currentIndex = System.Array.IndexOf(availableWeapons, equippedWeapon);
+            int previousIndex = (currentIndex - 1 + availableWeapons.Length) % availableWeapons.Length;
+            EquipWeapon(previousIndex);
+        }
+
         // Capture movement direction
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
         float moveVertical = Input.GetAxisRaw("Vertical");
