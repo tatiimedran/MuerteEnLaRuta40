@@ -83,7 +83,7 @@ public class CharacterMovement : MonoBehaviour
         {
             float attackRadius = equippedWeapon.attackRange;
 
-            // 1. Ataque a enemigos (sin cambios)
+            // 1. Ataque a enemigos 
             Collider2D[] hitTargets = Physics2D.OverlapCircleAll(transform.position, attackRadius);
             foreach (Collider2D targetCollider in hitTargets)
             {
@@ -101,14 +101,14 @@ public class CharacterMovement : MonoBehaviour
                 }
             }
 
-            // 2. Ataque a destructibles (con rango y origen personalizados)
+            // 2. Ataque a destructibles 
             Vector2 attackDirection = new Vector2(
                 animator.GetFloat("LastMoveHorizontal"),
                 animator.GetFloat("LastMoveVertical")
             ).normalized;
 
-            Vector2 destructibleOrigin = (Vector2)transform.position + attackDirection * (attackRadius * 0.7f);
-            float destructibleRange = attackRadius * 0.5f;
+            Vector2 destructibleOrigin = (Vector2)transform.position + attackDirection * (attackRadius * 0.9f);
+            float destructibleRange = attackRadius * 0.9f;
 
             Collider2D[] hitObjects = Physics2D.OverlapCircleAll(destructibleOrigin, destructibleRange);
             foreach (Collider2D targetCollider in hitObjects)

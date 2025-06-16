@@ -71,5 +71,17 @@ public class PlayerHealth : MonoBehaviour
         this.enabled = false; // Disable PlayerHealth script
         GetComponent<CharacterMovement>().enabled = false; // Disable movement
     }
+    public void SetMaxHealth(int maxHealth)
+    {
+        currentHealth = maxHealth;
+        OnHealthChanged?.Invoke(currentHealth); // Actualizar la barra de salud
+        Debug.Log($"Salud restaurada al máximo: {currentHealth}");
+    }
+    public void RestoreFullHealth()
+    {
+        currentHealth = maxHealth; // Restaura la vida al máximo
+        OnHealthChanged?.Invoke(currentHealth); // Notifica a la barra de vida
+        Debug.Log("Salud restaurada completamente.");
+    }
 }
 

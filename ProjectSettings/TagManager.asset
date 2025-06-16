@@ -21,7 +21,7 @@ TagManager:
   - DestructibleObject
   - Fences
   - PlayerProjectile
-  - 
+  - PickUp
   - 
   - 
   - 
