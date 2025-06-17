@@ -18,7 +18,7 @@ MonoBehaviour:
   canMeleeAttack: 0
   canRangedAttack: 1
   meleeDamage: 0
-  rangedDamage: 30
+  rangedDamage: 20
   meleeAttackRange: 2
   rangedAttackRange: 10
   projectilePrefab: {fileID: 6880553970298125613, guid: a3ae233f842d8514e9c4866b89e254cd, type: 3}
