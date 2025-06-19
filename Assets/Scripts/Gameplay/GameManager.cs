@@ -1,14 +1,13 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
     [Header("Referencias UI")]
-    public GameObject gameOverPanel;
-
-    private GameTimer gameTimer;
+    [SerializeField] private GameObject gameOverPanel;
 
     private void Awake()
     {
@@ -16,6 +15,7 @@ public class GameManager : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
         else
         {
@@ -23,29 +23,33 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void Start()
+    private void OnDestroy()
     {
-        gameTimer = Object.FindFirstObjectByType<GameTimer>();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-    private void Update()
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        Canvas canvas = Object.FindFirstObjectByType<Canvas>();
+        if (canvas != null)
         {
-            QuitGame();
+            Transform panelTransform = canvas.transform.Find("GameOverPanel");
+            if (panelTransform != null)
+            {
+                gameOverPanel = panelTransform.gameObject;
+                gameOverPanel.SetActive(false);
+            }
+            else
+            {
+                Debug.LogWarning("GameOverPanel no encontrado dentro del Canvas.");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Canvas no encontrado en la escena.");
         }
 
-        // Test temporal: G para mostrar el panel Game Over
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            GameOver();
-        }
-    }
-
-    public void QuitGame()
-    {
-        Debug.Log("Quitting game...");
-        Application.Quit();
+        Time.timeScale = 1f;
     }
 
     public void GameOver()
@@ -54,15 +58,10 @@ public class GameManager : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
             Time.timeScale = 0f;
-
-            if (gameTimer != null)
-            {
-                gameTimer.isRunning = false;
-            }
         }
         else
         {
-            Debug.LogWarning("No se encontró el GameOverPanel en la escena.");
+            Debug.LogWarning("GameOverPanel no asignado o no encontrado.");
         }
     }
 
@@ -76,5 +75,11 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void QuitGame()
+    {
+        Debug.Log("Saliendo del juego...");
+        Application.Quit();
     }
 }

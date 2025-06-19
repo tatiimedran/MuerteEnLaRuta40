@@ -67,28 +67,30 @@ public class PlayerHealth : MonoBehaviour
     {
         Debug.Log("Player has died!");
         GetComponent<Animator>().SetTrigger("Die"); // Trigger death animation
-        GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero; // Detiene el movimiento completamente
-        this.enabled = false; // Disable PlayerHealth script
-        GetComponent<CharacterMovement>().enabled = false; // Disable movement
+        GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero; 
+
+        this.enabled = false; 
+        GetComponent<CharacterMovement>().enabled = false; 
 
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.GameOver();
+            GameManager.Instance.GameOver(); 
         }
         else
         {
-            Debug.LogWarning("GameManager.Instance es null. ¿Está el GameManager en la escena?");
+            Debug.LogWarning("GameManager.Instance es null. ï¿½Estï¿½ el GameManager en la escena?");
         }
     }
+
     public void SetMaxHealth(int maxHealth)
     {
         currentHealth = maxHealth;
         OnHealthChanged?.Invoke(currentHealth); // Actualizar la barra de salud
-        Debug.Log($"Salud restaurada al máximo: {currentHealth}");
+        Debug.Log($"Salud restaurada al mï¿½ximo: {currentHealth}");
     }
     public void RestoreFullHealth()
     {
-        currentHealth = maxHealth; // Restaura la vida al máximo
+        currentHealth = maxHealth; // Restaura la vida al mï¿½ximo
         OnHealthChanged?.Invoke(currentHealth); // Notifica a la barra de vida
         Debug.Log("Salud restaurada completamente.");
     }
