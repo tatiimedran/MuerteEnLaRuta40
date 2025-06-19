@@ -70,6 +70,15 @@ public class PlayerHealth : MonoBehaviour
         GetComponent<Rigidbody2D>().linearVelocity = Vector2.zero; // Detiene el movimiento completamente
         this.enabled = false; // Disable PlayerHealth script
         GetComponent<CharacterMovement>().enabled = false; // Disable movement
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.GameOver();
+        }
+        else
+        {
+            Debug.LogWarning("GameManager.Instance es null. ¿Está el GameManager en la escena?");
+        }
     }
     public void SetMaxHealth(int maxHealth)
     {

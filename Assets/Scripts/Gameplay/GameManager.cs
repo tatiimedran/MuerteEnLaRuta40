@@ -6,7 +6,9 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Referencias UI")]
-    public GameObject gameOverPanel; 
+    public GameObject gameOverPanel;
+
+    private GameTimer gameTimer;
 
     private void Awake()
     {
@@ -19,6 +21,11 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void Start()
+    {
+        gameTimer = Object.FindFirstObjectByType<GameTimer>();
     }
 
     private void Update()
@@ -47,6 +54,11 @@ public class GameManager : MonoBehaviour
         {
             gameOverPanel.SetActive(true);
             Time.timeScale = 0f;
+
+            if (gameTimer != null)
+            {
+                gameTimer.isRunning = false;
+            }
         }
         else
         {
