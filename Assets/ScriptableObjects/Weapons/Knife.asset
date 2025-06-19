@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponName: Knife
   weaponSlot: 1
-  attackDamage: 10
+  attackDamage: 20
   attackRange: 1
   isRanged: 0
   projectilePrefab: {fileID: 0}

@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyName: Fox
   speed: 6
-  health: 40
+  health: 60
   canMeleeAttack: 1
   canRangedAttack: 0
-  meleeDamage: 20
+  meleeDamage: 5
   rangedDamage: 0
-  meleeAttackRange: 0.8
+  meleeAttackRange: 1
   rangedAttackRange: 0
   projectilePrefab: {fileID: 0}
-  detectionRange: 6
-  attackCooldown: 0.5
+  detectionRange: 8
+  attackCooldown: 0.8
   deathEffectPrefab: {fileID: 0}
