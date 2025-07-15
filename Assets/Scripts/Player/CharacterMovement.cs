@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class CharacterMovement : MonoBehaviour
@@ -8,56 +9,39 @@ public class CharacterMovement : MonoBehaviour
     private Rigidbody2D rb;
     private Vector2 direction;
     private Animator animator;
+    private bool isSprinting = false; 
 
     [Header("Player weapons")]
-    public Weapon[] availableWeapons; // List of available weapons
-    private Weapon equippedWeapon;    // Currently equipped weapon
+    public Weapon[] availableWeapons;
+    private Weapon equippedWeapon;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-
-        // By default, equip the first weapon
-        EquipWeapon(0); // Index 0 (Knife)
+        EquipWeapon(0); // Default weapon
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F))
-        {
-            // Fire or melee attack depending on the equipped weapon
-            animator.SetTrigger(equippedWeapon.attackAnimation);
-            ApplyDamageToEnemy();
-        }
+       
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            // Fire or melee attack with spacebar
-            animator.SetTrigger(equippedWeapon.attackAnimation);
-            ApplyDamageToEnemy();
-        }
-
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            // Equip previous weapon (quick weapon swap)
-            int currentIndex = System.Array.IndexOf(availableWeapons, equippedWeapon);
-            int previousIndex = (currentIndex - 1 + availableWeapons.Length) % availableWeapons.Length;
-            EquipWeapon(previousIndex);
-        }
-
-        // Capture movement direction
         float moveHorizontal = Input.GetAxisRaw("Horizontal");
         float moveVertical = Input.GetAxisRaw("Vertical");
-        direction = new Vector2(moveHorizontal, moveVertical).normalized;
 
-        // Update animations and directions
+        Vector2 rawInput = new Vector2(moveHorizontal, moveVertical);
+
+        if (rawInput.magnitude < 0.2f)
+            rawInput = Vector2.zero;
+
+        direction = rawInput.normalized;
+
+        
         if (direction != Vector2.zero)
         {
             animator.SetFloat("MoveHorizontal", direction.x);
             animator.SetFloat("MoveVertical", direction.y);
             animator.SetBool("IsMoving", true);
-
             animator.SetFloat("LastMoveHorizontal", direction.x);
             animator.SetFloat("LastMoveVertical", direction.y);
         }
@@ -68,124 +52,41 @@ public class CharacterMovement : MonoBehaviour
             animator.SetFloat("MoveVertical", animator.GetFloat("LastMoveVertical"));
         }
 
-        // Switch equipped weapon
         if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeapon(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) EquipWeapon(1);
     }
 
     void FixedUpdate()
     {
-        // Handle movement depending on attack state
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
         if (!stateInfo.IsTag(equippedWeapon.attackAnimation))
         {
-            float currentSpeed = Input.GetKey(KeyCode.LeftShift) ? sprintSpeed : speed;
+            float currentSpeed = isSprinting ? sprintSpeed : speed; 
             rb.linearVelocity = direction * currentSpeed;
         }
         else
         {
-            rb.linearVelocity = Vector2.zero; // Stop movement during attack
+            rb.linearVelocity = Vector2.zero;
         }
     }
 
-    private void ApplyDamageToEnemy()
+    public void OnMove(InputAction.CallbackContext context)
     {
-        if (equippedWeapon.isRanged)
-        {
-            ShootProjectile();
-        }
-        else
-        {
-            float attackRadius = equippedWeapon.attackRange;
-
-            // 1. Ataque a enemigos 
-            Collider2D[] hitTargets = Physics2D.OverlapCircleAll(transform.position, attackRadius);
-            foreach (Collider2D targetCollider in hitTargets)
-            {
-                if (targetCollider.CompareTag("Enemy"))
-                {
-                    EnemyBehavior enemy = targetCollider.GetComponent<EnemyBehavior>();
-                    if (enemy != null)
-                    {
-                        float distance = Vector2.Distance(transform.position, enemy.transform.position);
-                        if (distance <= equippedWeapon.attackRange)
-                        {
-                            enemy.TakeDamage(equippedWeapon.attackDamage);
-                        }
-                    }
-                }
-            }
-
-            // 2. Ataque a destructibles 
-            Vector2 attackDirection = new Vector2(
-                animator.GetFloat("LastMoveHorizontal"),
-                animator.GetFloat("LastMoveVertical")
-            ).normalized;
-
-            Vector2 destructibleOrigin = (Vector2)transform.position + attackDirection * (attackRadius * 0.9f);
-            float destructibleRange = attackRadius * 0.9f;
-
-            Collider2D[] hitObjects = Physics2D.OverlapCircleAll(destructibleOrigin, destructibleRange);
-            foreach (Collider2D targetCollider in hitObjects)
-            {
-                if (targetCollider.CompareTag("Destructible"))
-                {
-                    DestructibleObject destructible = targetCollider.GetComponent<DestructibleObject>();
-                    if (destructible != null)
-                    {
-                        float distance = Vector2.Distance(destructibleOrigin, destructible.transform.position);
-                        if (distance <= destructibleRange)
-                        {
-                            destructible.TakeDamage(equippedWeapon.attackDamage);
-                        }
-                    }
-                }
-            }
-        }
+        direction = context.ReadValue<Vector2>();
     }
 
-    private void ShootProjectile()
+    public void OnSprint(InputAction.CallbackContext context) 
     {
-        if (equippedWeapon.projectilePrefab != null)
+        isSprinting = context.ReadValueAsButton();
+    }
+
+    public void OnAttack(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
         {
-            // Instantiate the projectile
-            GameObject projectile = Instantiate(
-                equippedWeapon.projectilePrefab,   // Projectile prefab
-                transform.position,               // Initial position (player)
-                Quaternion.identity               // No initial rotation
-            );
-
-            // Set projectile direction and speed
-            Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
-            if (rb != null)
-            {
-                // Get direction from the Animator
-                Vector2 shootDirection = new Vector2(
-                    animator.GetFloat("MoveHorizontal"),
-                    animator.GetFloat("MoveVertical")
-                ).normalized;
-
-                rb.linearVelocity = shootDirection * equippedWeapon.projectileSpeed; // Projectile speed
-            }
-
-            // Transfer weapon damage to projectile
-            Projectile projectileScript = projectile.GetComponent<Projectile>();
-            if (projectileScript != null)
-            {
-                projectileScript.SetDamage(equippedWeapon.attackDamage);
-            }
-
-            // Play attack sound if available
-            if (equippedWeapon.attackSound != null)
-            {
-                AudioSource.PlayClipAtPoint(equippedWeapon.attackSound, transform.position);
-            }
-
-            Debug.Log($"Projectile fired with: {equippedWeapon.weaponName}, damage = {equippedWeapon.attackDamage}");
-        }
-        else
-        {
-            Debug.LogWarning("No projectile prefab assigned to this weapon.");
+            animator.SetTrigger(equippedWeapon.attackAnimation);
+            ApplyDamageToEnemy();
+            Debug.Log("Ataque ejecutado");
         }
     }
 
@@ -201,4 +102,102 @@ public class CharacterMovement : MonoBehaviour
             Debug.LogWarning("Invalid weapon index");
         }
     }
+
+    private void ApplyDamageToEnemy()
+    {
+        if (equippedWeapon.isRanged)
+        {
+            ShootProjectile();
+        }
+        else
+        {
+            float attackRadius = equippedWeapon.attackRange;
+
+            Collider2D[] hitTargets = Physics2D.OverlapCircleAll(transform.position, attackRadius);
+            foreach (Collider2D targetCollider in hitTargets)
+            {
+                if (targetCollider.CompareTag("Enemy"))
+                {
+                    EnemyBehavior enemy = targetCollider.GetComponent<EnemyBehavior>();
+                    if (enemy != null && Vector2.Distance(transform.position, enemy.transform.position) <= attackRadius)
+                    {
+                        enemy.TakeDamage(equippedWeapon.attackDamage);
+                    }
+                }
+            }
+
+            Vector2 attackDirection = new Vector2(
+                animator.GetFloat("LastMoveHorizontal"),
+                animator.GetFloat("LastMoveVertical")
+            ).normalized;
+
+            Vector2 destructibleOrigin = (Vector2)transform.position + attackDirection * (attackRadius * 0.9f);
+            float destructibleRange = attackRadius * 0.9f;
+
+            Collider2D[] hitObjects = Physics2D.OverlapCircleAll(destructibleOrigin, destructibleRange);
+            foreach (Collider2D targetCollider in hitObjects)
+            {
+                if (targetCollider.CompareTag("Destructible"))
+                {
+                    DestructibleObject destructible = targetCollider.GetComponent<DestructibleObject>();
+                    if (destructible != null && Vector2.Distance(destructibleOrigin, destructible.transform.position) <= destructibleRange)
+                    {
+                        destructible.TakeDamage(equippedWeapon.attackDamage);
+                    }
+                }
+            }
+        }
+    }
+
+    private void ShootProjectile()
+    {
+        if (equippedWeapon.projectilePrefab != null)
+        {
+            GameObject projectile = Instantiate(
+                equippedWeapon.projectilePrefab,
+                transform.position,
+                Quaternion.identity
+            );
+
+            Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
+            if (rb != null)
+            {
+                Vector2 shootDirection = new Vector2(
+                    animator.GetFloat("MoveHorizontal"),
+                    animator.GetFloat("MoveVertical")
+                ).normalized;
+
+                rb.linearVelocity = shootDirection * equippedWeapon.projectileSpeed; 
+            }
+
+            Projectile projectileScript = projectile.GetComponent<Projectile>();
+            if (projectileScript != null)
+            {
+                projectileScript.SetDamage(equippedWeapon.attackDamage);
+            }
+
+            if (equippedWeapon.attackSound != null)
+            {
+                AudioSource.PlayClipAtPoint(equippedWeapon.attackSound, transform.position);
+            }
+
+            Debug.Log($"Projectile fired with: {equippedWeapon.weaponName}, damage = {equippedWeapon.attackDamage}");
+        }
+        else
+        {
+            Debug.LogWarning("No projectile prefab assigned to this weapon.");
+        }
+
+    }
+    public void OnQuickWeaponSwap(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+        {
+            int currentIndex = System.Array.IndexOf(availableWeapons, equippedWeapon);
+            int nextIndex = (currentIndex + 1) % availableWeapons.Length; // Alternar al siguiente arma
+            EquipWeapon(nextIndex);
+            Debug.Log("Quick weapon swap ejecutado");
+        }
+    }
+
 }
